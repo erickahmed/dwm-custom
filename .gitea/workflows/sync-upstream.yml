@@ -1,0 +1,30 @@
+name: Sync Upstream (12h)
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://git.suckless.org/dwm || true
+          git fetch upstream
+
+      - name: Merge upstream into master
+        run: |
+          git checkout master
+          git merge upstream/master --strategy-option ours --no-edit || true
+
+      - name: Push merged branch
+        run: |
+          git push origin master
+
